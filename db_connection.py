@@ -1,22 +1,24 @@
-# db_connection.py
-
 import pyodbc
+import streamlit as st
+import time
 
-def obtener_conexion():
-    server = 'gari-core-production.database.windows.net'
-    database = 'GariCoreDB'
-    username = 'gariadmin'
-    password = 'C0ntr@s3g4ri'  # ✅ Confirmado anteriormente
-    driver = '{ODBC Driver 18 for SQL Server}'
-
-    conn_str = f"""
-        DRIVER={driver};
-        SERVER={server};
-        DATABASE={database};
-        UID={username};
-        PWD={password};
-        Encrypt=yes;
-        TrustServerCertificate=no;
-        Connection Timeout=30;
-    """
-    return pyodbc.connect(conn_str)
+def get_connection():
+    retries = 3
+    for attempt in range(retries):
+        try:
+            conn_str = (
+                "DRIVER={ODBC Driver 18 for SQL Server};"
+                "SERVER=helexium.database.windows.net;"
+                "DATABASE=dentisalud;"
+                "UID=gari;"
+                "PWD=Garimind.2025;"
+                "TrustServerCertificate=yes;"
+            )
+            return pyodbc.connect(conn_str, timeout=5)
+        except pyodbc.OperationalError as e:
+            if 'HYT00' in str(e) and attempt < retries - 1:
+                st.warning(f"⏳ Intentando reconexión a la BD ({attempt+1}/{retries})...")
+                time.sleep(2)
+            else:
+                st.error(f"❌ Error de conexión a BD: {e}")
+                raise
