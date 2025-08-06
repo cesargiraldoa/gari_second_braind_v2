@@ -1,14 +1,22 @@
-import pyodbc
-import pandas as pd
+# db_connection.py
 
-def ejecutar_sql(query):
-    conn = pyodbc.connect(
-        "DRIVER={ODBC Driver 18 for SQL Server};"
-        "SERVER=sql8020.site4now.net;"
-        "DATABASE=db_a91131_test;"
-        "UID=db_a91131_test_admin;"
-        "PWD=dEVOPS2022;"
-    )
-    df = pd.read_sql(query, conn)
-    conn.close()
-    return df
+import pyodbc
+
+def obtener_conexion():
+    server = 'gari-core-production.database.windows.net'
+    database = 'GariCoreDB'
+    username = 'gariadmin'
+    password = 'C0ntr@s3g4ri'  # ✅ Confirmado anteriormente
+    driver = '{ODBC Driver 18 for SQL Server}'
+
+    conn_str = f"""
+        DRIVER={driver};
+        SERVER={server};
+        DATABASE={database};
+        UID={username};
+        PWD={password};
+        Encrypt=yes;
+        TrustServerCertificate=no;
+        Connection Timeout=30;
+    """
+    return pyodbc.connect(conn_str)
