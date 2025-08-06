@@ -1,6 +1,6 @@
 import streamlit as st
 from explorador_tabla import explorar_tabla
-from gari_secondbrain_analytics import main as analytics_main
+from gari_analytics import main as analytics_main  # <- Línea corregida
 
 st.set_page_config(page_title="Gari Second Brain", layout="wide")
 
