@@ -1,38 +1,41 @@
-# Dockerfile_microsoft_repo_5ago25_OK
+# Imagen base robusta compatible con drivers ODBC
 FROM python:3.10-bullseye
 
+# Variables de entorno
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
     TZ=America/Bogota
 
-# Instalar herramientas básicas
-RUN apt-get update && apt-get install -y curl gnupg apt-transport-https
-
-# Agregar repositorio oficial de Microsoft para ODBC Driver 18
-RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
-    curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list
-
-# Instalar dependencias y driver
-RUN apt-get update && ACCEPT_EULA=Y apt-get install -y \
-    msodbcsql18 \
-    unixodbc-dev \
-    libgssapi-krb5-2 \
+# Instalar dependencias de sistema necesarias para pyodbc + ODBC SQL Server
+RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
-    libffi-dev \
     libssl-dev \
+    libffi-dev \
     libpq-dev \
     libcurl4 \
+    libstdc++6 \
     libkrb5-3 \
+    libgssapi-krb5-2 \
+    unixodbc \
+    unixodbc-dev \
     odbcinst \
-    make \
-    build-essential \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    curl \
+    gnupg \
+    tzdata
 
-# Establecer carpeta de trabajo
-WORKDIR /app
+# Instalar pipenv y crear directorio de trabajo
+RUN pip install --upgrade pip
 
+# Instalar dependencias Python
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+# Copiar el resto del proyecto
+COPY . .
+
+# Ejecutar Streamlit
+CMD ["streamlit", "run", "dashboard.py", "--server.port=10000", "--server.enableCORS=false"]
 # Copiar archivos de la app
 COPY . /app
 
